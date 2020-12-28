@@ -1,4 +1,6 @@
 
+// c library imports
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -8,39 +10,63 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-
+// function declarations
+int last_index(char* str, int len, char key );
+char* slice( char* str, int len, int lo, int hi);
 int num_spaces( char* str, int len );
 void repl(bool debug, bool usermode, FILE* source);
 int main( int argc, char *argv[] );
 
 
+// function implementations
 int last_index(char* str, int len, char key ){
+
+    /* This function determines the index of a given character
+            starting from the end of the string, rather than
+            the beginning.
+    */
 
     int i;
 
-    for( i = len; i >= 0; --i){
+    for( i = len; i >= 0; --i)
         if( str[i] == key )
             return i; 
-    }
-
+    
     return -1;
 }
 
 char* slice( char* str, int len, int lo, int hi){
 
+    /* This function mimics the list-slicing functionality
+            readily used in the Python programming language
+
+        Given:
+            a string (list of characters)
+            the given string's defined length
+            a start point
+                within the bounds of the string ( 0 < x < end )
+            an end point
+                within the bounds of the string ( start < x < len )
+
+    */
+
     int i;
     int diff;
 
+    // check bounds
     if( hi < lo || lo < 0 || hi > len )
         return str;
 
     diff = hi - lo;
 
+    // allocate memory for new slice
     char *slice = (char*) calloc(diff, sizeof(char));
 
+    // copy target characters to new slice
     for( i = lo; i < hi; ++i)
         slice[ (i - lo) ] = str[i];
 
+    // return slice pointer
     return slice;
 
 }
@@ -103,7 +129,7 @@ void repl(bool debug, bool usermode, FILE* source){
     size_t contentLength = 0; // pl
     //ssize_t length;
 
-    // strtok() variables
+    // strtok() function variables
     char* token;
     char* cmd;
     char* outer;
@@ -130,8 +156,7 @@ void repl(bool debug, bool usermode, FILE* source){
 
 
     // preset path to ["", "/usr/bin","/bin"]
-    //      This is really __BAD___
-    //      Find a better solution later!
+    //      This is a sub-optimal yet functional solution
     path = (char**) malloc( (pathc*sizeof(char*)) );
 
     path[0] = (char*) malloc( sizeof("") );
@@ -304,7 +329,6 @@ void repl(bool debug, bool usermode, FILE* source){
 int main( int argc, char *argv[]){
 
     /* aesh.c
-        ...
      */
 
     bool debug = false;
@@ -332,6 +356,7 @@ int main( int argc, char *argv[]){
                 and use stdin as command source for interactive mode.  
         
      */
+
     if( cmdsource != NULL ){
         if(debug) printf("batch mode\n");
         usermode = false;
@@ -341,12 +366,11 @@ int main( int argc, char *argv[]){
     }
 
 
-    // go to repl portion of program
+    // Setup complete, enter REPL
     /*  R ead
         E val
         P rint
         L oop
-
     */
     repl( debug, usermode, cmdsource );
 
